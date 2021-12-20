@@ -1,0 +1,30 @@
+{
+  "name" : "secxun/framework",
+  "description": "new secxun framework",
+  "keywords": [
+    "php",
+    "swoole",
+    "secxun"
+  ],
+  "authors": [
+    {
+      "name": "yourway",
+      "email": "lyw@secxun.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Secxun\\": "secxun/",
+      "App\\": "app/"
+    }
+  },
+  "require": {
+    "php": ">=7.0",
+    "qcloud/cos-sdk-v5": ">=2.0",
+    "ext-swoole":">=4.0",
+    "elasticsearch/elasticsearch": "~6.0",
+    "ext-json": "*",
+    "monolog/monolog": "2.0.2",
+    "ext-curl": "*"
+  }
+}
