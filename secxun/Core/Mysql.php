@@ -300,7 +300,6 @@ class Mysql
      * @param float $timeout
      * @return mixed
      * @throws \Exception
-     * @author Holyrisk
      * @date 2020/4/16 17:46
      */
     public function queryExecute(string $sql, array $sqlArr = [], string $app, float $timeout = 0)
@@ -334,7 +333,6 @@ class Mysql
      * @param bool $getSql
      * @return mixed
      * @throws \Exception
-     * @author Holyrisk
      * @date 2020/5/14 21:10
      */
     public function create(array $insertData, string $table, $app, $getSql = false)
@@ -381,7 +379,6 @@ class Mysql
      * @param float $timeout
      * @return array
      * @throws \Exception
-     * @author Holyrisk
      * @date 2020/4/28 15:49
      */
     public function fetch(string $sql, array $sqlArr = [], string $app, float $timeout = 0)
@@ -419,7 +416,6 @@ class Mysql
      * @param float $timeout
      * @return mixed
      * @throws \Exception
-     * @author Holyrisk
      * @date 2020/4/28 15:50
      */
     public function fetchAll(string $sql, array $sqlArr = [], string $app, float $timeout = 0)

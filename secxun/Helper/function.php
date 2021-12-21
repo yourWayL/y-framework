@@ -164,7 +164,6 @@ if (!function_exists('is_really_writable')) {
 
 /**
  * @description 标准输出JSON
- * @author Holyrisk
  * @date 2020/4/16 14:49
  * @param string $meessage 提示信息
  * @param int $code 状态码 200 成功 400 失败 500 系统错误 | 非 200 为失败 - 特殊声明例外
@@ -183,7 +182,6 @@ function anJson($meessage = 'success', $code = 200, $data = '')
 
 /**
  * @description 标准输出 数组
- * @author Holyrisk
  * @date 2020/4/30 17:04
  * @param string $meessage 提示信息
  * @param int $code 状态码 200 成功 400 失败 500 系统错误 | 非 200 为失败 - 特殊声明例外

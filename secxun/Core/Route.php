@@ -35,6 +35,7 @@ class Route
         $filepath = ROOT_PATH . DS . 'app' . DS;
         $temp = scandir($filepath);
         $projectRouteConfigInitialize = array();
+        $httpRoute = array();
         foreach ($temp as $v) {
             $a = $filepath . '/' . $v;
             if (is_dir($a)) {
@@ -42,10 +43,17 @@ class Route
                     continue;
                 }
                 $projectRouteConfigInfo = require ROOT_PATH . DS . 'app' . DS . $v . DS . 'Route/httpRoute.php';
-                $projectRouteConfigInitialize = array_merge($projectRouteConfigInitialize, $projectRouteConfigInfo);
+//                $projectRouteConfigInitialize = array_merge($projectRouteConfigInitialize, $projectRouteConfigInfo);
+//                var_dump($projectRouteConfigInitialize);
+                foreach ($projectRouteConfigInfo as $key => $value) {
+                    foreach ($value as $r => $m) {
+                        $httpRoute[strtolower($key)][$r] = $m;
+                    }
+                }
             }
         }
-        self::$httpRouteConfig = $projectRouteConfigInitialize;
+        var_dump($httpRoute);
+        self::$httpRouteConfig = $httpRoute;
     }
 
     /**
@@ -86,11 +94,12 @@ class Route
             $requestUri = trim($requestUri, '/');
             $requestUri = trim($requestUri, '\\');
             $requestUri = trim($requestUri, '/');
+            $request_method = strtolower($request->server['request_method']);
             self::setHttpConfig();
-            if (empty(self::$httpRouteConfig[$requestUri])) {
+            if (empty(self::$httpRouteConfig[$request_method][$requestUri])) {
                 return 404;
             } else {
-                return $this->SearchHttpApi(self::$httpRouteConfig[$requestUri], $request, $response);
+                return $this->SearchHttpApi(self::$httpRouteConfig[$request_method][$requestUri], $request, $response);
             }
         } elseif ($requestMethod == 'websocket') {
             $requestUri = trim($requestUri, '/');
@@ -111,29 +120,25 @@ class Route
      * 匹配API入口并执行
      * Author: yourway <lyw@secxun.com>
      * @param $route
-     * @return json
-
-     * @description 修改 如果抛出异常 -- 状态码 为 999 | 则 提取出来
-     * @author Holyrisk
-     * @date 2020/4/30 15:11
      * @param $route
      * @param $request
      * @param $response
+     * @description 修改 如果抛出异常 -- 状态码 为 999 | 则 提取出来
      * @return string
+     * @author yourway
+     * @date 2020/4/30 15:11
      */
     protected function SearchHttpApi($route, $request, $response)
     {
-        try{
-        $httpRouteConfig = explode('/', $route);
-        $api = "\\App\\" . ucfirst($httpRouteConfig['0']) . '\\' . ucfirst($httpRouteConfig['1']) . '\\' . ucfirst($httpRouteConfig['2']) . '\\' . ucfirst($httpRouteConfig['3']);
-        $newFunction = new $api($request, $response);
-        $functionName = $httpRouteConfig[4];
-        $result = $newFunction->$functionName($request,$response);
+        try {
+            $httpRouteConfig = explode('/', $route);
+            $api = "\\App\\" . ucfirst($httpRouteConfig['0']) . '\\' . ucfirst($httpRouteConfig['1']) . '\\' . ucfirst($httpRouteConfig['2']) . '\\' . ucfirst($httpRouteConfig['3']);
+            $newFunction = new $api($request, $response);
+            $functionName = $httpRouteConfig[4];
+            $result = $newFunction->$functionName($request, $response);
             return $result;
-        }catch (\Exception $exception)
-        {
-            if ($exception->getCode() == 999)
-            {
+        } catch (\Exception $exception) {
+            if ($exception->getCode() == 999) {
                 $result = $exception->getMessage();
                 return $result;
             }
