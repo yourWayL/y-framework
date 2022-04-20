@@ -11,6 +11,8 @@ declare(strict_types=1);
 namespace Secxun\Core;
 
 
+use Exception;
+
 class Process
 {
     /**
@@ -64,14 +66,13 @@ class Process
             $this->mpid = getmypid();
             $this->run();
             $this->processWait();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             die('ALL ERROR: ' . $e->getMessage());
         }
     }
 
     /**
      * 执行创建进程操作
-     * Author: yourway <lyw@secxun.com>
      * @return void
      */
     public function run()
@@ -94,7 +95,6 @@ class Process
 
     /**
      * 创造子进程
-     * Author: yourway <lyw@secxun.com>
      * @param int $index
      * @return mixed
      */
@@ -118,11 +118,10 @@ class Process
 
     /**
      * 创建http服务进程
-     * Author: yourway <lyw@secxun.com>
      * @param int $index
      * @return int
      */
-    public function CreateHttpProcess(int $index)
+    public function CreateHttpProcess(int $index): int
     {
         $process = new \swoole_process(function (\swoole_process $worker) use ($index) {
             $worker->exec($this->phpBin, array(ROOT_PATH . '/bin/WebSocket.php'));
@@ -137,7 +136,6 @@ class Process
 
     /**
      * 验证进程是否下线
-     * Author: yourway <lyw@secxun.com>
      * @param $worker
      * @return void
      */
@@ -145,14 +143,13 @@ class Process
     {
         if (!\swoole_process::kill($this->mpid, 0)) {
             $worker->exit();
-            // 这句提示,实际是看不到的.需要写到日志中
+            // 这句提示,实际是看不到的.需要写到日志中(nohup)
             echo "Master process exited, I [{$worker['pid']}] also quit\n";
         }
     }
 
     /**
      * 生成执行日志
-     * Author: yourway <lyw@secxun.com>
      * @param string $workName
      * @param string $log
      * @return void
@@ -174,9 +171,8 @@ class Process
 
     /**
      * 重启服务进程
-     * Author: yourway <lyw@secxun.com>
      * @param array $ret
-     * @throws \Exception
+     * @throws Exception
      */
     public function rebootProcess(array $ret)
     {
@@ -193,13 +189,12 @@ class Process
             //echo "rebootProcess: {$index}={$new_pid} Done\n";
             return;
         }
-        throw new \Exception('rebootProcess Error: no pid');
+        throw new Exception('rebootProcess Error: no pid');
     }
 
     /**
      * 回收结束的子进程进程
-     * Author: yourway <lyw@secxun.com>
-     * @throws \Exception
+     * @throws Exception
      */
     public function processWait()
     {

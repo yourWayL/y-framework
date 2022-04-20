@@ -21,8 +21,8 @@ class Action
      */
     public static function getConfig(string $type)
     {
-        $path = ROOT_PATH . DS . 'config' . $type . 'php';
-        return file_get_contents($path);
+        $path = ROOT_PATH . DS . 'config' . DS . $type . '.php';
+        return include_once($path);
     }
 
     /**
@@ -85,7 +85,7 @@ class Action
      * @param array $data
      * @return array
      */
-    public static function  multiCurlUrl($data)
+    public static function  multiCurlUrl(array $data): array
     {
         //先拼装请求
         // 创建批处理cURL句柄

@@ -3,7 +3,7 @@ declare(strict_types=1);
 // ----------------------------------------------------------------------
 // | secPHP                                                             |
 // ----------------------------------------------------------------------
-// | Copyright (c) 2016-2019 https://www.secxun.com All rights reserved.|
+// | Copyright (c) 2016-2021 https://www.secxun.com All rights reserved.|
 // ----------------------------------------------------------------------
 // | Author: yourway <lyw@secxun.com>                                   |
 // ----------------------------------------------------------------------
@@ -11,23 +11,28 @@ declare(strict_types=1);
 namespace Secxun\Core;
 
 
+use ReflectionClass;
+
 class Application
 {
     // 获得类的对象实例
     public static function getInstance($className)
     {
         $paramArr = self::getMethodParams($className);
-        return (new ReflectionClass($className))->newInstanceArgs($paramArr);
+        try {
+            return (new ReflectionClass($className))->newInstanceArgs($paramArr);
+        } catch (\ReflectionException $e) {
+        }
     }
 
     /**
      * 执行类的方法
-     * @param  [type] $className  [类名]
-     * @param  [type] $methodName [方法名称]
-     * @param  [type] $params     [额外的参数]
-     * @return [type]             [description]
+     * @param $className
+     * @param $methodName
+     * @param array $params
+     * @return mixed [type]             [description]
      */
-    public static function make($className, $methodName, $params = [])
+    public static function make($className, $methodName, array $params = [])
     {
         // 获取类的实例
         $instance = self::getInstance($className);
@@ -39,10 +44,10 @@ class Application
     /**
      * 获得类的方法参数，只获得有类型的参数
      * @param  [type] $className   [description]
-     * @param  [type] $methodsName [description]
-     * @return [type]              [description]
+     * @param string $methodsName
+     * @return array [type]              [description]
      */
-    protected static function getMethodParams($className, $methodsName = '__construct')
+    protected static function getMethodParams($className, string $methodsName = '__construct')
     {
 
         // 通过反射获得该类
@@ -62,7 +67,10 @@ class Application
                         $paramClassName = $paramClass->getName();
                         // 获得参数类型
                         $args = self::getMethodParams($paramClassName);
-                        $paramArr[] = (new ReflectionClass($paramClass->getName()))->newInstanceArgs($args);
+                        try {
+                            $paramArr[] = (new ReflectionClass($paramClass->getName()))->newInstanceArgs($args);
+                        } catch (\ReflectionException $e) {
+                        }
                     }
                 }
             }

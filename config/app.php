@@ -26,7 +26,7 @@ return [
      * 此参数表示worker进程在处理完n次请求后结束运行。manager会重新创建一个worker进程。此选项用来防止worker进程内存溢出。
      * 设置为0表示不自动重启。在Worker进程中需要保存连接信息的服务，需要设置为0.
      */
-    'http_maxRequest' => 100,
+    'http_maxRequest' => 20,
     // 指定swoole错误日志文件。在swoole http运行期发生的异常信息会记录到这个文件中
     'http_logFile' => ROOT_PATH . DS . 'runtime/log/http/httpError.log',
     // 指定swoole错误日志文件。在swoole websocket运行期发生的异常信息会记录到这个文件中

@@ -5,7 +5,6 @@ declare(strict_types=1);
  * @description: 框架提供的Websocket类
  * @author yourway <lyw@secxiun.com>
  * @copyright 深圳安巽科技有限公司 <https://www.secxun.com>
- * @create: 2020 - 03 - 16
  */
 
 namespace Secxun\Core;
@@ -31,7 +30,6 @@ class Websocket
     {
         if ($initialize) {
             $this->webSocketStart();
-
         }
     }
 
@@ -42,20 +40,22 @@ class Websocket
     {
         $Config = require_once ROOT_PATH . DS . 'config' . DS . 'app.php';
         $this->webSocketServer = new \Swoole\WebSocket\Server($Config['host'], $Config['port']);
-//        $this->webSocketServer->set(array(
-//            'worker_num'                => $Config['http_workerNum'],
-//            'daemonize'                 => $Config['http_daemonize'],
-//            'max_request'               => $Config['http_maxRequest'],
-//            'heartbeat_check_interval ' => 30,
-//            'heartbeat_idle_time'       => 60,
-//            'open_cpu_affinity '        => 1,
-//            'dispatch_mode  '           => 1,
-//            'buffer_output_size'        => 32 * 1024 * 1024, //必须为数字 |  配置发送输出缓存区内存尺寸
-//        ));
+        $this->webSocketServer->set(array(
+            'worker_num' => $Config['http_workerNum'],
+            'daemonize' => $Config['http_daemonize'],
+            'max_request' => $Config['http_maxRequest'],
+        ));
         $this->Config = $Config;
         $this->webSocketOpen();
+        echo '---------------------------------------------------' . "\r\n";
+        echo '| Websocket Service open successfully!            |' . "\r\n";
+        echo '---------------------------------------------------' . "\r\n";
         $this->webSocketMessage();
         $this->httpRequest();
+        echo '| httpRequest Service open successfully!          |' . "\r\n";
+        echo '---------------------------------------------------' . "\r\n";
+        echo "| Service addr:{$Config['host']}:{$Config['port']}                       |" . "\r\n";
+        echo '---------------------------------------------------' . "\r\n";
         $this->webSocketClose();
         $this->webSocketServer->start();
     }
@@ -177,8 +177,7 @@ class Websocket
     {
         $cache = new Cache();
         $requestUri = str_replace("/", ",", $requestUri);
-        $requsetCacheInfo = $cache::coreGet($requestUri, 'uri');
-        return $requsetCacheInfo;
+        return $cache::coreGet($requestUri, 'uri');
     }
 
     /**
@@ -285,7 +284,7 @@ class Websocket
      * @param Int $fdid
      * @return string
      */
-    public static function byFdidGetRequestURI(Int $fdid)
+    public static function byFdidGetRequestURI(int $fdid)
     {
         $cache = new Cache();
         $requsetUri = Cache::coreGet('fd' . $fdid, 'fd');
@@ -303,7 +302,7 @@ class Websocket
         $_POST = $request->post ?? [];
         $_COOKIE = $request->cookie ?? [];
         $_FILES = $request->files ?? [];
-        $_SERVER = array_merge($request->server ?? [],$request->header ?? []);
+        $_SERVER = array_merge($request->server ?? [], $request->header ?? []);
     }
 
 }

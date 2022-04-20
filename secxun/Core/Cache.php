@@ -15,7 +15,6 @@ class Cache
 {
     /**
      * 生成底层缓存数据
-     * Author: yourway <lyw@secxun.com>
      * @param string $key
      * @param mixed $value
      * @param string $type
@@ -32,7 +31,6 @@ class Cache
 
     /**
      * 取出底层所需缓存数据
-     * Author: yourway <lyw@secxun.com>
      * @param string $key
      * @param string $type
      * @return bool|mixed
@@ -50,11 +48,10 @@ class Cache
 
     /**
      * 取出所需模块缓存的所有数据
-     * Author: yourway <lyw@secxun.com>
      * @param string $type
      * @return array
      */
-    public static function coreGetAll(string $type)
+    public static function coreGetAll(string $type): array
     {
         $dir = ROOT_PATH . DS . 'runtime' . DS . 'cache' . DS . 'core' . DS . $type;
         $routeFile = scandir($dir);

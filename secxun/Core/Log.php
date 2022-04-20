@@ -48,7 +48,11 @@ class Log
      */
     protected static $moduleList = ['Client', 'Manager', 'Wechat'];
 
-    private static function getInstance(string $file)
+    /**
+     * @param string $file
+     * @return Logger
+     */
+    private static function getInstance(string $file): Logger
     {
         $logger = new Logger('');
         $filePath = self::getPath() . DS .$file.'.log';
@@ -74,7 +78,7 @@ class Log
      * 生成日志目录
      * @return string
      */
-    private static function getPath()
+    private static function getPath(): string
     {
         $time = date('Ymd');
         self::getModule();

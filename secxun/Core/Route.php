@@ -28,7 +28,6 @@ class Route
 
     /**
      * 获取各个项目Http路由配置
-     * Author: yourway <lyw@secxun.com>
      */
     public function setHttpConfig()
     {
@@ -52,13 +51,11 @@ class Route
                 }
             }
         }
-        var_dump($httpRoute);
         self::$httpRouteConfig = $httpRoute;
     }
 
     /**
      * 获取各个项目websocket路由配置
-     * Author: yourway <lyw@secxun.com>
      */
     public function setWebSocketConfig()
     {
@@ -80,13 +77,12 @@ class Route
 
     /**
      * 验证路由是否存在
-     * Author: yourway <lyw@secxun.com>
      * @param $requestMethod
      * @param $requestUri
      * @param $request
      * @param $response
      * @param string $step
-     * @return array
+     * @return array|string
      */
     public function isSetRoute($requestMethod, $requestUri, $request, $response, $step = '', $resources)
     {
@@ -95,7 +91,9 @@ class Route
             $requestUri = trim($requestUri, '\\');
             $requestUri = trim($requestUri, '/');
             $request_method = strtolower($request->server['request_method']);
-            self::setHttpConfig();
+            if (empty(self::$httpRouteConfig)) {
+                self::setHttpConfig();
+            }
             if (empty(self::$httpRouteConfig[$request_method][$requestUri])) {
                 return 404;
             } else {
@@ -118,14 +116,12 @@ class Route
 
     /**
      * 匹配API入口并执行
-     * Author: yourway <lyw@secxun.com>
      * @param $route
      * @param $route
      * @param $request
      * @param $response
      * @description 修改 如果抛出异常 -- 状态码 为 999 | 则 提取出来
      * @return string
-     * @author yourway
      * @date 2020/4/30 15:11
      */
     protected function SearchHttpApi($route, $request, $response)
@@ -138,17 +134,13 @@ class Route
             $result = $newFunction->$functionName($request, $response);
             return $result;
         } catch (\Exception $exception) {
-            if ($exception->getCode() == 999) {
-                $result = $exception->getMessage();
-                return $result;
-            }
-            $result = $exception->getMessage();
-            return $result;
+            return $exception->getMessage();
         }
     }
 
     protected function SearchWebSocketApi($route, $request, $step, $resources)
     {
+        $webSocketRouteConfig = '';
         switch ($step) {
             case 'onOpen' :
                 $webSocketRouteConfig = $route[0];
@@ -164,7 +156,6 @@ class Route
         $api = "\\App\\" . ucfirst($routeConfig['0']) . '\\' . ucfirst($routeConfig['1']) . '\\' . ucfirst($routeConfig['2']) . '\\' . ucfirst($routeConfig['3']);
         $newFunctionName = new $api($request);
         $functionName = $routeConfig[4];
-        $result = $newFunctionName->$functionName($request, $resources);
-        return $result;
+        return $newFunctionName->$functionName($request, $resources);
     }
 }

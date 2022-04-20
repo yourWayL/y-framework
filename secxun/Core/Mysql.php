@@ -37,6 +37,7 @@ class Mysql
     /**
      * 执行sql语句
      * @param string $sql
+     * @param string $app
      * @param float $timeout
      * @return mixed
      */
@@ -61,7 +62,7 @@ class Mysql
      * 处理select搜索
      * @param array $parameter
      * @param string $table
-     * @param $app
+     * @param string $app
      * @param bool $getSql
      * @param array $validate
      * @return array|bool
@@ -69,13 +70,7 @@ class Mysql
      */
     public function select(array $parameter, string $table, string $app, bool $getSql = false, array $validate = array()): array
     {
-        $path = ROOT_PATH . DS . 'app' . DS . ucfirst($app) . DS . 'Config' . DS . 'database.php';
-        $databaseInfo = require $path;
-        $config = $databaseInfo['db_master'];
-        $mysql = new \Swoole\Coroutine\MySQL();
-        $mysql->connect($config);
-        $mysql->query('set names ' . $config['charset']);
-
+        $mysql = $this->getMysqlConnect($app);
         if (!empty($validate)) {
             $validate = new Validation();
             $handleParameter = $validate::validate($parameter, $validate);
@@ -84,14 +79,14 @@ class Mysql
             $handleParameter = $parameter;
         }
         $prepareSql = "SELECT * FROM {$table} WHERE ";
-		$order = '';
+        $order = '';
         $executeParam = array();
         foreach ($handleParameter as $key => $v) {
             if (is_array($v)) {
-                if($v[0] == 'like'){
+                if ($v[0] == 'like') {
                     $prepareSql .= $key . ' ' . $v[0] . " concat('%',?,'%') and ";
                     $executeParam[] = $v[1];
-                }else{
+                } else {
                     $prepareSql .= $key . ' ' . $v[0] . ' ? and ';
                     $executeParam[] = $v[1];
                 }
@@ -125,7 +120,7 @@ class Mysql
      * 处理主从不同步时 从主库搜索
      * @param array $parameter
      * @param string $table
-     * @param $app
+     * @param string $app
      * @param bool $getSql
      * @param array $validate
      * @return array|bool
@@ -153,10 +148,10 @@ class Mysql
         $executeParam = array();
         foreach ($handleParameter as $key => $v) {
             if (is_array($v)) {
-                if($v[0] == 'like'){
+                if ($v[0] == 'like') {
                     $prepareSql .= $key . ' ' . $v[0] . " concat('%',?,'%') and ";
                     $executeParam[] = $v[1];
-                }else{
+                } else {
                     $prepareSql .= $key . ' ' . $v[0] . ' ? and ';
                     $executeParam[] = $v[1];
                 }
@@ -191,17 +186,12 @@ class Mysql
      * @param string $table
      * @param string $app
      * @param bool $getSql
-     * @return mixed
+     * @return array|void
      */
-    public function insert(array $insertData, string $table, string $app, $getSql = false)
+    public function insert(array $insertData, string $table, string $app, bool $getSql = false)
     {
-        try{
-            $path = ROOT_PATH . DS . 'app' . DS . ucfirst($app) . DS . 'Config' . DS . 'database.php';
-            $databaseInfo = require $path;
-            $config = $databaseInfo['db_master'];
-            $mysql = new \Swoole\Coroutine\MySQL();
-            $mysql->connect($config);
-            $mysql->query('set names ' . $config['charset']);
+        try {
+            $mysql = $this->getMysqlConnect($app);
             $startSql = "INSERT INTO `{$table}` ";
             $field = '';
             $values = '';
@@ -224,7 +214,7 @@ class Mysql
                 $result['result'] = $doPrepare->execute($executeParam);
             }
             return $result;
-        }catch (Exception $e){
+        } catch (Exception $e) {
             var_dump($e);
         }
 
@@ -233,8 +223,9 @@ class Mysql
     /**
      * @param array $insertData
      * @param string $table
+     * @param $app
      * @param int $num
-     * @return
+     * @return mixed
      */
     function insertAll(array $insertData, string $table, $app, $num = 1000)
     {
@@ -259,6 +250,7 @@ class Mysql
     /**
      * @param $table
      * @param $addData
+     * @param $app
      * @return mixed
      */
     private static function createInsertAllSql($table, $addData, $app)
@@ -441,7 +433,11 @@ class Mysql
         return $result;
     }
 
-    public function sqlQuery($sql)
+    /**
+     * @param $sql
+     * @return string
+     */
+    public function sqlQuery($sql): string
     {
         $sql = json_decode(str_replace("/", "\\/", $sql), true);
         $sql = rtrim(ltrim($sql, "\""), "\"");
@@ -450,5 +446,21 @@ class Mysql
         return $mysql->query($sql);
 
 
+    }
+
+    /**
+     * 获取数据库连接
+     * @param string $app
+     * @return \Swoole\Coroutine\MySQL
+     */
+    private function getMysqlConnect(string $app): \Swoole\Coroutine\MySQL
+    {
+        $path = ROOT_PATH . DS . 'app' . DS . ucfirst($app) . DS . 'Config' . DS . 'database.php';
+        $databaseInfo = require $path;
+        $config = $databaseInfo['db_master'];
+        $mysql = new \Swoole\Coroutine\MySQL();
+        $mysql->connect($config);
+        $mysql->query('set names ' . $config['charset']);
+        return $mysql;
     }
 }
